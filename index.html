@@ -209,5 +209,35 @@
     console.log("Database URL:", firebaseConfig.databaseURL);
   };
   </script>
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+
+// Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyBRPlWh1slILKg8DWQDOEWXSFsnUK3j1vw",
+    authDomain: "testdatabase-4daf4.firebaseapp.com",
+    databaseURL: "https://testdatabase-4daf4-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "testdatabase-4daf4",
+    storageBucket: "testdatabase-4daf4.appspot.com",
+    messagingSenderId: "743231387214",
+    appId: "1:743231387214:web:166169b25f72616280351f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Suppose your JSON data is stored in a variable called vocabData
+// e.g., import it or copy-paste as const vocabData = {...}
+
+for (const key in vocabData) {
+    const entry = vocabData[key];
+    const newRef = push(ref(db, 'vocabulary'));
+    set(newRef, entry);
+}
+
+console.log('Upload completed!');
+</script>
+
 </body>
 </html>
