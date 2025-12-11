@@ -22,62 +22,48 @@
   <button onclick="login()">Login</button>
 
   <script>
-    const firebaseConfig = {
+  const firebaseConfig = {
+    apiKey: "AIzaSyBRPlWh1slILKg8DWQDOEWXSFsnUK3j1vw",
+    authDomain: "testdatabase-4daf4.firebaseapp.com",
+    databaseURL: "https://testdatabase-4daf4-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "testdatabase-4daf4",
+    storageBucket: "testdatabase-4daf4.firebasestorage.app",
+    messagingSenderId: "743231387214",
+    appId: "1:743231387214:web:166169b25f72616280351f"
+  };
 
-  apiKey: "AIzaSyBRPlWh1slILKg8DWQDOEWXSFsnUK3j1vw",
+  // Initialize Firebase (ONLY THIS!)
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-  authDomain: "testdatabase-4daf4.firebaseapp.com",
+  async function register() {
+    const name = document.getElementById('regName').value;
+    const pass = document.getElementById('regPass').value;
 
-  databaseURL: "https://testdatabase-4daf4-default-rtdb.europe-west1.firebasedatabase.app",
-      
-  projectId: "testdatabase-4daf4",
+    if (!name || !pass) return alert("Fill name + password");
 
-  storageBucket: "testdatabase-4daf4.firebasestorage.app",
+    await db.ref('users/' + name).set({ password: pass });
 
-  messagingSenderId: "743231387214",
+    alert("User registered!");
+  }
 
-  appId: "1:743231387214:web:166169b25f72616280351f"
+  async function login() {
+    const name = document.getElementById('loginName').value;
+    const pass = document.getElementById('loginPass').value;
 
-};
+    const snap = await db.ref('users/' + name).get();
 
+    if (!snap.exists()) return alert("User not found");
 
-// Initialize Firebase
-
-const app = firebase.initializeApp(firebaseConfig);
-
-
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    // REGISTER WITH NAME + PASSWORD (stored manually, since Firebase Auth requires email)
-    async function register() {
-      const name = document.getElementById('regName').value;
-      const pass = document.getElementById('regPass').value;
-
-      if (!name || !pass) return alert("Fill name + password");
-
-      // store user manually in Realtime DB
-      await db.ref('users/' + name).set({ password: pass });
-
-      alert("User registered!");
+    const data = snap.val();
+    if (data.password === pass) {
+      alert("Login successful!");
+    } else {
+      alert("Wrong password!");
     }
+  }
+</script>
 
-    async function login() {
-      const name = document.getElementById('loginName').value;
-      const pass = document.getElementById('loginPass').value;
-
-      const snap = await db.ref('users/' + name).get();
-
-      if (!snap.exists()) return alert("User not found");
-
-      const data = snap.val();
-      if (data.password === pass) {
-        alert("Login successful!");
-      } else {
-        alert("Wrong password!");
-      }
-    }
-  </script>
 </body>
 </html>
