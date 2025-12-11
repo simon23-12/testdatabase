@@ -3,24 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <title>Testside for a Database</title>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      max-width: 600px; 
+      margin: 50px auto; 
+      padding: 20px;
+    }
+    input, select { 
+      padding: 8px; 
+      margin: 5px 0; 
+      width: 220px; 
+    }
+    button { 
+      padding: 8px 15px; 
+      margin: 5px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+    .success { background-color: #d4edda; color: #155724; display: block; }
+    .error { background-color: #f8d7da; color: #721c24; display: block; }
+  </style>
 </head>
 <body>
   <h1>TESTSIDE FOR A DATABASE</h1>
-
+  
+  <div id="status"></div>
+  
   <h2>Register</h2>
   <input id="regName" placeholder="Name" />
   <input id="regPass" placeholder="Password" type="password" />
+  <select id="regClass">
+    <option value="">-- Klasse wählen --</option>
+    <option value="5a">5a</option>
+    <option value="5b">5b</option>
+    <option value="5c">5c</option>
+    <option value="5d">5d</option>
+    <option value="6a">6a</option>
+    <option value="6b">6b</option>
+    <option value="6c">6c</option>
+    <option value="6d">6d</option>
+    <option value="7a">7a</option>
+    <option value="7b">7b</option>
+    <option value="7c">7c</option>
+    <option value="7d">7d</option>
+    <option value="8a">8a</option>
+    <option value="8b">8b</option>
+    <option value="8c">8c</option>
+    <option value="8d">8d</option>
+    <option value="9a">9a</option>
+    <option value="9b">9b</option>
+    <option value="9c">9c</option>
+    <option value="9d">9d</option>
+    <option value="10a">10a</option>
+    <option value="10b">10b</option>
+    <option value="10c">10c</option>
+    <option value="10d">10d</option>
+  </select>
   <button onclick="register()">Register</button>
-
+  
   <h2>Login</h2>
   <input id="loginName" placeholder="Name" />
   <input id="loginPass" placeholder="Password" type="password" />
   <button onclick="login()">Login</button>
-
+  
+  <h2>Debug</h2>
+  <button onclick="testConnection()">Test Connection</button>
+  <button onclick="listUsers()">List All Users</button>
+  
   <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBRPlWh1slILKg8DWQDOEWXSFsnUK3j1vw",
@@ -31,39 +88,126 @@
     messagingSenderId: "743231387214",
     appId: "1:743231387214:web:166169b25f72616280351f"
   };
-
-  // Initialize Firebase (ONLY THIS!)
+  
+  // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
   const db = firebase.database();
-
-  async function register() {
-    const name = document.getElementById('regName').value;
-    const pass = document.getElementById('regPass').value;
-
-    if (!name || !pass) return alert("Fill name + password");
-
-    await db.ref('users/' + name).set({ password: pass });
-
-    alert("User registered!");
+  
+  function showStatus(message, isError = false) {
+    const status = document.getElementById('status');
+    status.textContent = message;
+    status.className = isError ? 'error' : 'success';
+    console.log(isError ? 'ERROR:' : 'SUCCESS:', message);
   }
-
-  async function login() {
-    const name = document.getElementById('loginName').value;
-    const pass = document.getElementById('loginPass').value;
-
-    const snap = await db.ref('users/' + name).get();
-
-    if (!snap.exists()) return alert("User not found");
-
-    const data = snap.val();
-    if (data.password === pass) {
-      alert("Login successful!");
-    } else {
-      alert("Wrong password!");
+  
+  async function register() {
+    try {
+      const name = document.getElementById('regName').value.trim();
+      const pass = document.getElementById('regPass').value;
+      const schoolClass = document.getElementById('regClass').value;
+      
+      if (!name || !pass) {
+        showStatus("Bitte Name und Passwort eingeben!", true);
+        return;
+      }
+      
+      if (!schoolClass) {
+        showStatus("Bitte eine Klasse auswählen!", true);
+        return;
+      }
+      
+      showStatus("Registrierung läuft...");
+      
+      // Firebase speichert automatisch alle Felder!
+      await db.ref('users/' + name).set({ 
+        password: pass,
+        class: schoolClass,
+        created: new Date().toISOString()
+      });
+      
+      showStatus("✓ User erfolgreich registriert! (Klasse: " + schoolClass + ")");
+      document.getElementById('regName').value = '';
+      document.getElementById('regPass').value = '';
+      document.getElementById('regClass').value = '';
+      
+    } catch (error) {
+      showStatus("FEHLER beim Registrieren: " + error.message, true);
+      console.error("Full error:", error);
     }
   }
-</script>
-
+  
+  async function login() {
+    try {
+      const name = document.getElementById('loginName').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      
+      if (!name || !pass) {
+        showStatus("Bitte Name und Passwort eingeben!", true);
+        return;
+      }
+      
+      showStatus("Login läuft...");
+      
+      const snap = await db.ref('users/' + name).get();
+      
+      if (!snap.exists()) {
+        showStatus("User nicht gefunden!", true);
+        return;
+      }
+      
+      const data = snap.val();
+      if (data.password === pass) {
+        showStatus("✓ Login erfolgreich! Willkommen, " + name + " (Klasse: " + data.class + ")");
+      } else {
+        showStatus("Falsches Passwort!", true);
+      }
+      
+    } catch (error) {
+      showStatus("FEHLER beim Login: " + error.message, true);
+      console.error("Full error:", error);
+    }
+  }
+  
+  async function testConnection() {
+    try {
+      showStatus("Teste Verbindung...");
+      const testRef = db.ref('test');
+      await testRef.set({ timestamp: Date.now() });
+      showStatus("✓ Verbindung funktioniert! Datenbank ist erreichbar.");
+    } catch (error) {
+      showStatus("FEHLER: Keine Verbindung zur Datenbank! " + error.message, true);
+      console.error("Connection error:", error);
+    }
+  }
+  
+  async function listUsers() {
+    try {
+      showStatus("Lade User-Liste...");
+      const snap = await db.ref('users').get();
+      
+      if (!snap.exists()) {
+        showStatus("Keine User in der Datenbank gefunden.");
+        return;
+      }
+      
+      const users = snap.val();
+      let userInfo = [];
+      for (let name in users) {
+        userInfo.push(name + " (" + users[name].class + ")");
+      }
+      showStatus("✓ Gefundene Users: " + userInfo.join(', '));
+      
+    } catch (error) {
+      showStatus("FEHLER beim Laden: " + error.message, true);
+      console.error("Full error:", error);
+    }
+  }
+  
+  // Teste Verbindung beim Laden der Seite
+  window.onload = () => {
+    console.log("Firebase initialized");
+    console.log("Database URL:", firebaseConfig.databaseURL);
+  };
+  </script>
 </body>
 </html>
