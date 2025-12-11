@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Testside for a Database</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+</head>
+<body>
+  <h1>TESTSIDE FOR A DATABASE</h1>
+
+  <h2>Register</h2>
+  <input id="regName" placeholder="Name" />
+  <input id="regPass" placeholder="Password" type="password" />
+  <button onclick="register()">Register</button>
+
+  <h2>Login</h2>
+  <input id="loginName" placeholder="Name" />
+  <input id="loginPass" placeholder="Password" type="password" />
+  <button onclick="login()">Login</button>
+
+  <script>
+    // TODO: Insert your own Firebase config here
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DB_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // REGISTER WITH NAME + PASSWORD (stored manually, since Firebase Auth requires email)
+    async function register() {
+      const name = document.getElementById('regName').value;
+      const pass = document.getElementById('regPass').value;
+
+      if (!name || !pass) return alert("Fill name + password");
+
+      // store user manually in Realtime DB
+      await db.ref('users/' + name).set({ password: pass });
+
+      alert("User registered!");
+    }
+
+    async function login() {
+      const name = document.getElementById('loginName').value;
+      const pass = document.getElementById('loginPass').value;
+
+      const snap = await db.ref('users/' + name).get();
+
+      if (!snap.exists()) return alert("User not found");
+
+      const data = snap.val();
+      if (data.password === pass) {
+        alert("Login successful!");
+      } else {
+        alert("Wrong password!");
+      }
+    }
+  </script>
+</body>
+</html>
