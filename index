@@ -21,16 +21,26 @@
   <button onclick="login()">Login</button>
 
   <script>
-    // TODO: Insert your own Firebase config here
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      databaseURL: "YOUR_DB_URL",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
+
+  apiKey: "AIzaSyBRPlWh1slILKg8DWQDOEWXSFsnUK3j1vw",
+
+  authDomain: "testdatabase-4daf4.firebaseapp.com",
+
+  projectId: "testdatabase-4daf4",
+
+  storageBucket: "testdatabase-4daf4.firebasestorage.app",
+
+  messagingSenderId: "743231387214",
+
+  appId: "1:743231387214:web:166169b25f72616280351f"
+
+};
+
+
+// Initialize Firebase
+
+const app = initializeApp(firebaseConfig);
 
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
